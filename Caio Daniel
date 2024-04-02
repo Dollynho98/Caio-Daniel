@@ -1,0 +1,81 @@
+/*------------------------------------------------------------------------------------
+UNICSUL - Universidade Cruzeiro do Sul - Santo Amaro
+Analise Desenvolvimento de Sistemas - Noturno - 3º Sem
+Topicos Avançados de SI - I - Prof Vinicius Heltai
+Autor: Caio Daniel Alves do Carmo
+Data de Criação: 01/03/2024
+---------------------------------------------------------------------------------------
+Descrição: 
+desenvolver um sistema com node.JS onde o usuario acesse pelo caminho 
+http://localhost:5678 com 3 rotas diferentes (imc, notas e dolar);
+---------------------------------------------------------------------------------------
+*/
+const express = require('express');
+const bodyParser = require('body-parser');
+
+const app = express();
+const port = 5678;
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static('public'));
+
+// Rota raiz
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
+// Rota IMC
+app.get('/imc', (req, res) => {
+    const peso = parseFloat(req.query.peso);
+    const altura = parseFloat(req.query.altura);
+    const imc = peso / (altura * altura);
+
+    let classificacao;
+
+    if (imc < 18.5) {
+        classificacao = 'Abaixo do peso';
+    } else if (imc < 24.9) {
+        classificacao = 'Peso normal';
+    } else if (imc < 29.9) {
+        classificacao = 'Sobrepeso';
+    } else {
+        classificacao = 'Obesidade';
+    }
+
+    res.send(`Seu IMC é ${imc.toFixed(2)}, classificação: ${classificacao}`);
+});
+
+// Rota Notas
+app.get('/notas', (req, res) => {
+    const notaA1 = parseFloat(req.query.notaA1);
+    const notaA2 = parseFloat(req.query.notaA2);
+    const limiteMedia = parseFloat(req.query.limiteMedia);
+
+    const media = (notaA1 + notaA2) / 2;
+
+    let situacao;
+
+    if (media >= limiteMedia) {
+        situacao = 'Aprovado';
+    } else if (media < limiteMedia && media >= 4) {
+        situacao = 'Aprovado em AF';
+    } else {
+        situacao = 'Reprovado';
+    }
+
+    res.send(`Sua média é ${media.toFixed(2)}, situação: ${situacao}`);
+});
+
+// Rota Dólar
+app.get('/dolar', (req, res) => {
+    const valorDolar = parseFloat(req.query.valorDolar);
+    const quantidadeReais = parseFloat(req.query.quantidadeReais);
+
+    const valorConvertido = quantidadeReais / valorDolar;
+
+    res.send(`Quantidade em dólar: $${valorConvertido.toFixed(2)}`);
+});
+
+app.listen(port, () => {
+    console.log(`[OK]Servidor iniciado http://localhost:${port}`);
+});
